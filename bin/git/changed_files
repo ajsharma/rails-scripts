@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require_relative '../../boot'
+
+# List all the files changed (in some way) in the current branch.
+#
+# Alternatives:
+# git diff --name-only master
+RailsScripts::System.call <<~SH
+	git diff --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
+SH

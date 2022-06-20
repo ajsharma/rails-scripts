@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require_relative '../../boot'
+
+RailsScripts::System.echo <<~SH
+
+
+RailsScripts is running Rubocop
+SH
+RailsScripts::Commands::RubocopAutocorrectChangedFilesCommand.run
+
+RailsScripts::System.echo <<~SH
+
+
+RailsScripts is running Yamllint
+SH
+RailsScripts::Commands::YamllintChangedFilesCommand.run
+
+
+RailsScripts::System.echo <<~SH
+
+
+RailsScripts is running Yard
+SH
+RailsScripts::Commands::YardChangedFilesCommand.run
