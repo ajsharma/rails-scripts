@@ -1,16 +1,16 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require_relative '../../boot'
 
 # Delete normal merges
 # git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d
 RailsScripts::System.call <<~SH
-	git branch --merged | egrep -v "(^\\*|#{RailsScripts.configuration.git_trunk_branch_name})" | xargs git branch -d
+  git branch --merged | egrep -v "(^\\*|#{RailsScripts.configuration.git_trunk_branch_name})" | xargs git branch -d
 SH
-
 
 # Delete squashed and merges
 # git checkout -q master && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base master $branch) && [[ $(git cherry master $(git commit-tree $(git rev-parse "$branch^{tree}") -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done
 RailsScripts::System.call <<~SH
-	git checkout -q #{RailsScripts.configuration.git_trunk_branch_name} && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} $branch) && [[ $(git cherry #{RailsScripts.configuration.git_trunk_branch_name} $(git commit-tree $(git rev-parse "$branch^{tree}") -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done
+  git checkout -q #{RailsScripts.configuration.git_trunk_branch_name} && git for-each-ref refs/heads/ "--format=%(refname:short)" | while read branch; do mergeBase=$(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} $branch) && [[ $(git cherry #{RailsScripts.configuration.git_trunk_branch_name} $(git commit-tree $(git rev-parse "$branch^{tree}") -p $mergeBase -m _)) == "-"* ]] && git branch -D $branch; done
 SH
