@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require_relative '../../boot'
 
@@ -7,5 +8,5 @@ require_relative '../../boot'
 # Alternatives:
 # git diff --name-only master
 RailsScripts::System.call <<~SH
-	git diff --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
+  git diff --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
 SH
