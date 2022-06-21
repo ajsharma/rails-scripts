@@ -3,9 +3,37 @@
 module RailsScripts
   # Proxy to system's Kernel
   class System
+    # Provides configuration of the RailsScripts's system class.
+    class Configuration
+      # Set to `true` to emit commands and additional logs
+      attr_accessor(:verbose)
+
+      def initialize
+        load_defaults
+      end
+
+      def verbose?
+        !!verbose
+      end
+
+      private
+
+      def load_defaults
+        self.verbose = false
+      end
+    end
+
     class << self
+      def configuration
+        @configuration ||= System::Configuration.new
+      end
+
+      def configure
+        yield(configuration)
+      end
+
       def call(*args)
-        puts(*args) if RailsScripts.configuration.verbose?
+        puts(*args) if RailsScripts::System.configuration.verbose?
 
         Kernel.system(*args)
       end

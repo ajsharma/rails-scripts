@@ -4,10 +4,6 @@
 # software faster
 module RailsScripts
   class << self
-    attr_writer(
-      :configuration
-    )
-
     def configuration
       @configuration ||= Internals::Configuration.new
     end
