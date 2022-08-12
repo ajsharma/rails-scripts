@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'open3'
+
 module RailsScripts
   # Proxy to system's Kernel
   class System
@@ -37,6 +39,15 @@ module RailsScripts
 
         Kernel.system(*args)
       end
+
+      def stream(*args)
+        puts(*args) if RailsScripts::System.configuration.verbose?
+
+        Open3.popen3(*args) do |stdout, stderr, status, thread|
+          yield stdout, stderr, status, thread
+        end
+      end
+
 
       def echo(message, color: :default, background: :default)
         require 'colorized_string'
