@@ -4,126 +4,122 @@ require 'pathname'
 
 module RailsScripts
   module Internals
+    # Guesses what the appropriate spec file is (if any) for any Rails application file.
     class RspecFilePathGuesser
-    	class << self
-    		def guess(application_file_path)
-    			new.guess(application_file_path)
-    		end
+      class << self
+        def guess(application_file_path)
+          new.guess(application_file_path)
+        end
 
-    		# Returns list of guesses, could return an empty list
-    		def guesses(application_file_paths)
-    			application_file_paths.map{ |application_file_path| guess(application_file_path) }.compact
-    		end
-    	end
+        # Returns list of guesses, could return an empty list
+        def guesses(application_file_paths)
+          application_file_paths.map { |application_file_path| guess(application_file_path) }.compact
+        end
+      end
 
-    	# Returns best guess of where the spec file _should_ be. Does not guarantee that the file exists.
-    	#
-    	# @return [String, null] String with guess or null if the guess is that there is no appropriate spec file
-  		def guess(application_file_path)
-  			raise ArgumentError, "application_file_path is required" unless application_file_path
-  			reset_errors
+      # Returns best guess of where the spec file _should_ be. Does not guarantee that the file exists.
+      #
+      # @return [String, null] String with guess or null if the guess is that there is no appropriate spec file
+      def guess(application_file_path)
+        raise ArgumentError, 'application_file_path is required' unless application_file_path
 
-  			guess_pathname = RailsPathname.new(application_file_path.chomp)
+        reset_errors
 
-  			# If it's already a spec, it's good.
-  			if guess_pathname.is_spec_file?
-  				return guess_pathname
-  			end
+        guess_pathname = RailsPathname.new(application_file_path.chomp)
 
-  			# Non-specs in spec folder can be ignored, they're likely support files
-  			if guess_pathname.in_spec_folder?
-  				@errors[guess_pathname] = "Not a spec file, but in spec folder."
-  				return nil
-  			end
+        # If it's already a spec, it's good.
+        return guess_pathname if guess_pathname.spec_file?
 
-  			# Ignore things in the root folder, we don't test those.
-  			if guess_pathname.in_root_folder?
-  				@errors[guess_pathname] = "In root folder"
-  				return nil
-  			end
+        # Non-specs in spec folder can be ignored, they're likely support files
+        if guess_pathname.in_spec_folder?
+          @errors[guess_pathname] = 'Not a spec file, but in spec folder.'
+          return nil
+        end
 
-  			if guess_pathname.in_app_folder?
-  				return guess_pathname.move_from_app_to_spec_folder.convert_to_spec_file
-  			end
+        # Ignore things in the root folder, we don't test those.
+        if guess_pathname.in_root_folder?
+          @errors[guess_pathname] = 'In root folder'
+          return nil
+        end
 
-  			if guess_pathname.in_lib_folder?
-  				return guess_pathname.move_from_lib_to_spec_folder.convert_to_spec_file
-  			end
+        return guess_pathname.move_from_app_to_spec_folder.convert_to_spec_file if guess_pathname.in_app_folder?
 
-  			# Should always have a guess. Unless the file is outside of Rails folder or other oddity
-  			raise "Could not guess spec file for #{application_file_path}"
-  		end
+        return guess_pathname.move_from_lib_to_spec_folder.convert_to_spec_file if guess_pathname.in_lib_folder?
 
-  		private
+        # Should always have a guess. Unless the file is outside of Rails folder or other oddity
+        raise "Could not guess spec file for #{application_file_path}"
+      end
 
-  		attr_reader :errors
+      private
 
-  		def reset_errors
-  			@errors ||= Hash.new { |hash, key| hash[key] = [] }
-  		end
+      attr_reader :errors
 
-  		class RailsPathname < Pathname
-	    	def is_spec_file?
-	    		end_with?(SPEC_FILE_SUFFIX)
-	    	end
+      def reset_errors
+        @errors = Hash.new { |hash, key| hash[key] = [] }
+      end
 
-	  		def in_root_folder?
-	  			dir, base = self.split
-	  			dir.to_s == "."
-	  		end
+      # Represents a file within the Rails codebase/folder
+      class RailsPathname < Pathname
+        def spec_file?
+          end_with?(SPEC_FILE_SUFFIX)
+        end
 
-	  		def in_app_folder?
-	  			start_with?(APP_FOLDER_PREFIX)
-	  		end
+        def in_root_folder?
+          dir, _base = split
+          dir.to_s == '.'
+        end
 
-	  		def in_lib_folder?
-	  			start_with?(LIB_FOLDER_PREFIX)
-	  		end
+        def in_app_folder?
+          start_with?(APP_FOLDER_PREFIX)
+        end
 
-	  		def in_spec_folder?
-	  			start_with?(SPEC_FOLDER_PREFIX)
-	  		end
+        def in_lib_folder?
+          start_with?(LIB_FOLDER_PREFIX)
+        end
 
-	  		def move_from_app_to_spec_folder
-	  			sub(APP_FOLDER_PREFIX, SPEC_FOLDER_PREFIX)
-	  		end
+        def in_spec_folder?
+          start_with?(SPEC_FOLDER_PREFIX)
+        end
 
-	  		def move_from_lib_to_spec_folder
-	  			sub(LIB_FOLDER_PREFIX, SPEC_FOLDER_PREFIX)
-	  		end
+        def move_from_app_to_spec_folder
+          sub(APP_FOLDER_PREFIX, SPEC_FOLDER_PREFIX)
+        end
 
-	  		# convert a file from .rb to _spec.rb
-	  		def convert_to_spec_file
-	  			sub_last(RUBY_FILE_SUFFIX, SPEC_FILE_SUFFIX)
-	  		end
+        def move_from_lib_to_spec_folder
+          sub(LIB_FOLDER_PREFIX, SPEC_FOLDER_PREFIX)
+        end
 
-	  		private
+        # convert a file from .rb to _spec.rb
+        def convert_to_spec_file
+          sub_last(RUBY_FILE_SUFFIX, SPEC_FILE_SUFFIX)
+        end
 
-	    	APP_FOLDER_PREFIX = 'app/'
-	    	LIB_FOLDER_PREFIX = 'lib/'
-	    	SPEC_FOLDER_PREFIX = 'spec/'
+        private
 
-	    	RUBY_FILE_SUFFIX = '.rb'
-	    	SPEC_FILE_SUFFIX = '_spec.rb'
+        APP_FOLDER_PREFIX = 'app/'
+        LIB_FOLDER_PREFIX = 'lib/'
+        SPEC_FOLDER_PREFIX = 'spec/'
 
-	  		def start_with?(prefix)
-	  			self.to_s.start_with?(prefix)
-	  		end
+        RUBY_FILE_SUFFIX = '.rb'
+        SPEC_FILE_SUFFIX = '_spec.rb'
 
-	  		def end_with?(suffix)
-	  			self.to_s.end_with?(suffix)
-	  		end
+        def start_with?(prefix)
+          to_s.start_with?(prefix)
+        end
 
-	  		def sub(pattern, replacement)
-	  			self.class.new(self.to_s.sub(pattern, replacement))
-	  		end
+        def end_with?(suffix)
+          to_s.end_with?(suffix)
+        end
 
-	  		def sub_last(pattern, replacement)
-	  			# https://stackoverflow.com/questions/3185144/how-to-replace-the-last-occurrence-of-a-substring-in-ruby
-	  			sub(/.*\K#{pattern}/, replacement)
-	  		end
-  		end
+        def sub(pattern, replacement)
+          self.class.new(to_s.sub(pattern, replacement))
+        end
 
+        def sub_last(pattern, replacement)
+          # https://stackoverflow.com/questions/3185144/how-to-replace-the-last-occurrence-of-a-substring-in-ruby
+          sub(/.*\K#{pattern}/, replacement)
+        end
+      end
     end
   end
 end

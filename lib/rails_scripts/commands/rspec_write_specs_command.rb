@@ -5,26 +5,18 @@ module RailsScripts
     # Writes a basic spec file for any changed files
     class RspecWriteSpecsCommand
       class << self
-        # Runs RSpec against changed specs
-        #
-        # git diff --diff-filter=d --name-only $(git merge-base main HEAD) | grep -e "._spec.rb$" | xargs -t bin/rspec -fd
+        # Looks for specs that should exist, then creates missing ones, then runs test suite
         def run
           git_changed_files = []
-          RailsScripts::System.stream <<~SH do |stdout, stderr, status, thread|
+          RailsScripts::System.stream <<~SH do |_stdout, stderr, _status, _thread|
             git diff --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
           SH
-            while stderr_line = stderr.gets do
+            while (stderr_line = stderr.gets)
               git_changed_files << stderr_line
             end
           end
 
-          puts "Found changes:"
-          puts git_changed_files
-
           impacted_spec_files = Internals::RspecFilePathGuesser.guesses(git_changed_files)
-
-          puts "Rspec files"
-          puts impacted_spec_files
 
           # TODO: if a spec_file _did_ exist, but no longer does, we should not re-create it
           # Example, renamed a spec file

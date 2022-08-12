@@ -40,14 +40,11 @@ module RailsScripts
         Kernel.system(*args)
       end
 
-      def stream(*args)
+      def stream(*args, &block)
         puts(*args) if RailsScripts::System.configuration.verbose?
 
-        Open3.popen3(*args) do |stdout, stderr, status, thread|
-          yield stdout, stderr, status, thread
-        end
+        Open3.popen3(*args, &block)
       end
-
 
       def echo(message, color: :default, background: :default)
         require 'colorized_string'

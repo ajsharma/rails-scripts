@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 
 module RailsScripts
@@ -6,9 +8,9 @@ module RailsScripts
     class FileMaker
       class << self
         def find_or_create(pathname)
-          raise ArgumentError, "pathname is required" unless pathname
+          raise ArgumentError, 'pathname is required' unless pathname
 
-          return pathname if pathname.exist?()
+          return pathname if pathname.exist?
 
           FileUtils.mkpath(pathname)
 
