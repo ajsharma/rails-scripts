@@ -11,8 +11,16 @@ module RailsScripts
           raise ArgumentError, 'pathname is required' unless pathname
 
           return pathname if pathname.exist?
+          # raise "Cannot proceed: [#{pathname}] is not a file" unless pathname.file?
 
-          FileUtils.mkpath(pathname)
+          # Create the parent folder
+          pathname.dirname.mkpath
+
+          # Write a placeholder template
+          pathname.write(<<~TEMPLATE)
+            RSpec.describe 'TODO' do
+            end
+          TEMPLATE
 
           pathname
         end
