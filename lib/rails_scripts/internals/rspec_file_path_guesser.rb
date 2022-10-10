@@ -30,6 +30,11 @@ module RailsScripts
         # If it's already a spec, it's good.
         return guess_pathname if guess_pathname.spec_file?
 
+        unless guess_pathname.ruby_file?
+          @errors[guess_pathname] = 'Not a ruby or rake file'
+          return nil
+        end
+
         # Non-specs in spec folder can be ignored, they're likely support files
         if guess_pathname.in_spec_folder?
           @errors[guess_pathname] = 'Not a spec file, but in spec folder.'
@@ -60,6 +65,10 @@ module RailsScripts
 
       # Represents a file within the Rails codebase/folder
       class RailsPathname < Pathname
+        def ruby_file?
+          end_with?(RUBY_FILE_SUFFIX) || end_with?(RAKE_FILE_SUFFIX) # || MimeType.ruby?(pathname)
+        end
+
         def spec_file?
           end_with?(SPEC_FILE_SUFFIX)
         end
@@ -100,6 +109,7 @@ module RailsScripts
         LIB_FOLDER_PREFIX = 'lib/'
         SPEC_FOLDER_PREFIX = 'spec/'
 
+        RAKE_FILE_SUFFIX = '.rake'
         RUBY_FILE_SUFFIX = '.rb'
         SPEC_FILE_SUFFIX = '_spec.rb'
 
