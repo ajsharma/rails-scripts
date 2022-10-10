@@ -7,8 +7,9 @@ module RailsScripts
     # Utility class to make it easier to create files that don't exist
     class FileMaker
       class << self
-        def find_or_create(pathname)
+        def find_or_create(pathname, template)
           raise ArgumentError, 'pathname is required' unless pathname
+          raise ArgumentError, 'template is required' unless template
 
           return pathname if pathname.exist?
           # raise "Cannot proceed: [#{pathname}] is not a file" unless pathname.file?
@@ -17,18 +18,9 @@ module RailsScripts
           pathname.dirname.mkpath
 
           # Write a placeholder template
-          pathname.write(<<~TEMPLATE)
-            RSpec.describe 'TODO' do
-            end
-          TEMPLATE
+          pathname.write(template)
 
           pathname
-        end
-
-        def find_or_create_all(pathnames)
-          pathnames.map do |pathname|
-            find_or_create(pathname)
-          end
         end
       end
     end

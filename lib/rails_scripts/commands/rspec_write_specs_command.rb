@@ -23,7 +23,12 @@ module RailsScripts
 
           # QUESTION: what if a file was deleted, and didn't have an equivalent test file?
 
-          found_spec_files = Internals::FileMaker.find_or_create_all(impacted_spec_files)
+          found_spec_files = impacted_spec_files.map do |impacted_spec_file|
+            Internals::FileMaker.find_or_create(impacted_spec_file, <<~TEMPLATE)
+              RSpec.describe 'TODO' do
+              end
+            TEMPLATE
+          end
 
           RailsScripts::System.call <<~SH
             bin/rspec -fd #{found_spec_files.join(' ')}
