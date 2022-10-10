@@ -4,4 +4,4 @@ set -e
 
 # List local branches by most recent commit
 # Include the latest commit message
-git branch --verbose --sort=committerdate
+git branch --verbose --sort=-committerdate
