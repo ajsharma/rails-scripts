@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../../boot'
+
+# Soft reset the branch, keep local changes.
+# Use an alternative to rebasing.
+#
+# Alternatives:
+# git diff --name-only master
+RailsScripts::System.call <<~SH
+  git reset --soft $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
+SH
