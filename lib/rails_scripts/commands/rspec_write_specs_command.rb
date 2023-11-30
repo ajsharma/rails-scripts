@@ -26,6 +26,7 @@ module RailsScripts
           found_spec_files = impacted_spec_files.map do |impacted_spec_file|
             Internals::FileMaker.find_or_create(impacted_spec_file, <<~TEMPLATE)
               RSpec.describe 'TODO' do
+                pending "add some examples to (or delete) \#{__FILE__}"
               end
             TEMPLATE
           end
