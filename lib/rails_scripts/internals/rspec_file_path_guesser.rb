@@ -52,7 +52,8 @@ module RailsScripts
         return guess_pathname.move_from_lib_to_spec_folder.convert_to_spec_file if guess_pathname.in_lib_folder?
 
         # Should always have a guess. Unless the file is outside of Rails folder or other oddity
-        raise "Could not guess spec file for #{application_file_path}"
+        # raise "Could not guess spec file for #{application_file_path}"
+        nil
       end
 
       private
