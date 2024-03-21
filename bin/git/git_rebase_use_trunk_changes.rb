@@ -5,5 +5,5 @@ require_relative '../../boot'
 
 # Git rebase, use my branch code to fix conflicts
 RailsScripts::System.call <<~SH
-  git rebase -Xtheirs #{RailsScripts.configuration.git_trunk_branch_name}
+  git rebase -Xours #{RailsScripts.configuration.git_trunk_branch_name}
 SH

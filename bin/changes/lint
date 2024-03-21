@@ -23,3 +23,10 @@ RailsScripts::System.echo <<~SH
   RailsScripts is running Yard
 SH
 RailsScripts::Commands::YardChangedFilesCommand.run
+
+RailsScripts::System.echo <<~SH
+
+
+  RailsScripts is running Yarn
+SH
+RailsScripts::Commands::YarnChangedFilesCommand.run
