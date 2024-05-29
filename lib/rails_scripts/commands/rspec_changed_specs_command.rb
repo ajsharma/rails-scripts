@@ -7,14 +7,11 @@ module RailsScripts
       class << self
         # Runs RSpec against changed specs
         #
-        # git diff --diff-filter=d --name-only $(git merge-base main HEAD) | grep -e "._spec.rb$" | xargs -t bin/rspec -fd
+        # git diff --relative --diff-filter=d --name-only $(git merge-base main HEAD) | grep -e "._spec.rb$" | xargs -t bin/rspec -fd
         def run
-          # RailsScripts::System.call <<~SH
-          #   git diff --diff-filter=d --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD) | grep -e "._spec.rb$" | xargs -t bin/rspec -fd
-          # SH
           git_changed_files = []
           RailsScripts::System.stream <<~SH do |_stdout, stderr, _status, _thread|
-            git diff --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
+            git diff --relative --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
           SH
             while (stderr_line = stderr.gets)
               git_changed_files << stderr_line

@@ -9,7 +9,7 @@ module RailsScripts
         def run
           git_changed_files = []
           RailsScripts::System.stream <<~SH do |_stdout, stderr, _status, _thread|
-            git diff --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
+            git diff --relative --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
           SH
             while (stderr_line = stderr.gets)
               git_changed_files << stderr_line
