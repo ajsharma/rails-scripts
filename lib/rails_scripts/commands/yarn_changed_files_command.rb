@@ -12,6 +12,9 @@ module RailsScripts
           RailsScripts::System.call <<~SH
             git diff --relative --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD) | grep -e ".js$" -e ".jsx$" -e ".ts$" -e ".tsx$" | xargs -t bin/yarn eslint --fix
           SH
+          RailsScripts::System.call <<~SH
+            git diff --relative --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD) | grep -e ".js$" -e ".jsx$" -e ".ts$" -e ".tsx$" | xargs -t bin/yarn prettier --write
+          SH
         end
       end
     end
