@@ -80,15 +80,15 @@ module RailsScripts
         end
 
         def in_app_folder?
-          start_with?(APP_FOLDER_PREFIX)
+          start_with?(APP_FOLDER_PREFIX) || start_with?("./#{APP_FOLDER_PREFIX}")
         end
 
         def in_lib_folder?
-          start_with?(LIB_FOLDER_PREFIX)
+          start_with?(LIB_FOLDER_PREFIX) || start_with?("./#{LIB_FOLDER_PREFIX}")
         end
 
         def in_spec_folder?
-          start_with?(SPEC_FOLDER_PREFIX)
+          start_with?(SPEC_FOLDER_PREFIX) || start_with?("./#{SPEC_FOLDER_PREFIX}")
         end
 
         def move_from_app_to_spec_folder
