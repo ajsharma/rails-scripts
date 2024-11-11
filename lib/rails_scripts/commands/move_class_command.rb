@@ -17,10 +17,25 @@ module RailsScripts
           prefix, from_file_path = guess_existing_file_path(from)
           to_file_path = guess_destination_file_path(prefix, to)
 
+          # replace all existing references
+          RailsScripts::System.call <<~SH
+            git grep -l -e '#{from}' --and --not -e "::#{from}" | xargs sed -i '' -e 's/#{from}/#{to}/g'
+          SH
+
+          RailsScripts::System.call <<~SH
+            git commit --all --message="Updates references to #{from} to #{to}"
+          SH
+
           # Copy from -> to
           FileUtils.cp from_file_path, to_file_path
-          # TODO: need to update new file's class name with the new name
-          rewrite_file(to_file_path, "class #{from}", "class #{to}")
+
+          RailsScripts::System.call <<~SH
+            git add #{to_file_path}
+          SH
+
+          RailsScripts::System.call <<~SH
+            git commit --message="Cloning #{from} to #{to}"
+          SH
 
           # Replace body of from with deprecated template
           File.write(from_file_path, <<~TEMPLATE)
@@ -28,29 +43,37 @@ module RailsScripts
             class #{from} < #{to}; end
           TEMPLATE
 
+          RailsScripts::System.call <<~SH
+            git add #{from_file_path}
+          SH
+
+          RailsScripts::System.call <<~SH
+            git commit --message="Deprecating #{from}"
+          SH
+
           # Copy rspec from (if exists) -> rspec to
           from_rspec_file_path = Internals::RspecFilePathGuesser.guess(from_file_path)
           if from_rspec_file_path && File.exist?(from_rspec_file_path)
             to_rspec_file_path = Internals::RspecFilePathGuesser.guess(to_file_path)
 
             FileUtils.cp from_rspec_file_path, to_rspec_file_path
-            rewrite_file(to_rspec_file_path, "RSpec.describe #{from}", "RSpec.describe #{to}")
+
+            RailsScripts::System.call <<~SH
+              git add #{to_rspec_file_path}
+            SH
+
+            # undo the changes to the initial Rspec file
+            RailsScripts::System.call <<~SH
+              git checkout master #{from_rspec_file_path}
+            SH
+
+            RailsScripts::System.call <<~SH
+              git commit --message="Cloning RSpec tests"
+            SH
           end
-
-          # TODO: git commands, may need to do this earlier.
-          # git add #{from_file_path}
-          # git add #{to_file_path}
-          # git add #{to_rspec_file_path}
-
-          # TODO: update call sites
         end
 
         private
-
-        def rewrite_file(file_path, pattern, replacement)
-          content = File.read(file_path)
-          File.write(file_path, content.sub( pattern, replacement))
-        end
 
         def guess_existing_file_path(class_name)
           end_of_file_name = Internals::RailsConventions.class_to_pathname(class_name)
