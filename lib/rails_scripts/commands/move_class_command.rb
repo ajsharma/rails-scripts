@@ -23,11 +23,12 @@ module RailsScripts
 
           FileUtils.cp from_file_path, to_file_path
           # TODO: need to update new file's class name with the new name
+          rewrite_file(to_file_path, "class #{from}", "class #{to}")
 
           # Replace body of from with deprecated template
           File.write(from_file_path, <<~TEMPLATE)
             # @deprecated Use #{to} instead.
-            class #{from} < #{to}
+            class #{from} < #{to}; end
           TEMPLATE
 
           # Copy rspec from -> rspec to
@@ -36,9 +37,7 @@ module RailsScripts
             to_rspec_file_path = Internals::RspecFilePathGuesser.guess(to_file_path)
 
             FileUtils.cp from_rspec_file_path, to_rspec_file_path
-            to_rspec_content = File.read(to_rspec_file_path)
-            updated_rspec = to_rspec_content.sub "RSpec.describe #{from}", "RSpec.describe #{to}"
-            File.write(to_rspec_file_path, updated_rspec)
+            rewrite_file(to_rspec_file_path, "RSpec.describe #{from}", "RSpec.describe #{to}")
           end
 
           # TODO: git commands, may need to do this earlier.
@@ -48,6 +47,11 @@ module RailsScripts
         end
 
         private
+
+        def rewrite_file(file_path, pattern, replacement)
+          content = File.read(file_path)
+          File.write(file_path, content.sub( pattern, replacement))
+        end
 
         def guess_existing_file_path(class_name)
           end_of_file_name = Internals::RailsConventions.class_to_pathname(class_name)
