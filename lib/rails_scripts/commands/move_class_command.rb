@@ -13,14 +13,11 @@ module RailsScripts
         # @param [String] from class name
         # @param [String] to class name
         def run(from:, to:)
-          # Copy from -> to
+          # Validate inputs
           prefix, from_file_path = guess_existing_file_path(from)
           to_file_path = guess_destination_file_path(prefix, to)
 
-          # TODO: remove, debugging only
-          puts from_file_path
-          puts to_file_path
-
+          # Copy from -> to
           FileUtils.cp from_file_path, to_file_path
           # TODO: need to update new file's class name with the new name
           rewrite_file(to_file_path, "class #{from}", "class #{to}")
@@ -31,7 +28,7 @@ module RailsScripts
             class #{from} < #{to}; end
           TEMPLATE
 
-          # Copy rspec from -> rspec to
+          # Copy rspec from (if exists) -> rspec to
           from_rspec_file_path = Internals::RspecFilePathGuesser.guess(from_file_path)
           if from_rspec_file_path && File.exist?(from_rspec_file_path)
             to_rspec_file_path = Internals::RspecFilePathGuesser.guess(to_file_path)
@@ -44,6 +41,8 @@ module RailsScripts
           # git add #{from_file_path}
           # git add #{to_file_path}
           # git add #{to_rspec_file_path}
+
+          # TODO: update call sites
         end
 
         private
