@@ -7,6 +7,11 @@ module RailsScripts
     # Utility class to make it easier to create files that don't exist
     class FileMaker
       class << self
+        def copy(source_path, destination_path)
+          FileUtils.mkdir_p(File.dirname(destination_path))
+          FileUtils.cp source_path, destination_path
+        end
+
         def find_or_create(pathname, template)
           raise ArgumentError, 'pathname is required' unless pathname
           raise ArgumentError, 'template is required' unless template

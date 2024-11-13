@@ -27,7 +27,7 @@ module RailsScripts
           SH
 
           # Copy from -> to
-          FileUtils.cp from_file_path, to_file_path
+          Internals::FileMaker.copy(from_file_path, to_file_path)
 
           RailsScripts::System.call <<~SH
             git add #{to_file_path}
@@ -56,7 +56,7 @@ module RailsScripts
           if from_rspec_file_path && File.exist?(from_rspec_file_path)
             to_rspec_file_path = Internals::RspecFilePathGuesser.guess(to_file_path)
 
-            FileUtils.cp from_rspec_file_path, to_rspec_file_path
+            Internals::FileMaker.copy(from_rspec_file_path, to_rspec_file_path)
 
             RailsScripts::System.call <<~SH
               git add #{to_rspec_file_path}
