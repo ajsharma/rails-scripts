@@ -14,8 +14,14 @@ module RailsScripts
         # @param [String] to class name
         def run(from:, to:)
           # Validate inputs
-          prefix, from_file_path = guess_existing_file_path(from)
-          to_file_path = guess_destination_file_path(prefix, to)
+          from_file_name_guess = Internals::RailsConventions.class_to_pathname(from)
+          from_file_path = find_existing_file(from_file_name_guess)
+
+          application_layer_folder = from_file_path.gsub("#{from_file_name_guess}", "") # gives ./app/model/, ./app/job/, etc.
+          to_file_name_guess = Internals::RailsConventions.class_to_pathname(to)
+
+          to_file_path = "#{application_layer_folder}#{to_file_name_guess}"
+          ensure_writable_file_path(to_file_path)
 
           # replace all existing references
           RailsScripts::System.call <<~SH
@@ -71,41 +77,65 @@ module RailsScripts
               git commit --message="Cloning RSpec tests"
             SH
           end
+
+          # Clone CODEOWNERS entry
+
+          codeowners_file_path = '../.github/CODEOWNERS'
+
+          # Read the existing content of the file
+          codeowner_lines = File.readlines(codeowners_file_path)
+
+          # Open the file for writing with the modifications
+          File.open(codeowners_file_path, 'w') do |file|
+            codeowner_lines.each do |line|
+              file.puts(line)
+              # Check if the line contains 'apple.rb'
+              if line.include?(from_file_name_guess)
+                new_line = line.sub(from_file_name_guess, to_file_name_guess)
+                file.puts(new_line)
+              end
+            end
+          end
+
+          RailsScripts::System.call <<~SH
+            git add #{codeowners_file_path}
+          SH
+
+          RailsScripts::System.call <<~SH
+            git commit --message="Updating CODEOWNERS file"
+          SH
         end
 
         private
 
-        def guess_existing_file_path(class_name)
-          end_of_file_name = Internals::RailsConventions.class_to_pathname(class_name)
+        def find_existing_file(end_of_file_name)
           # Need to deal with the dynamic app, job, lib, etc. folder
-          matches = Dir["./**/#{end_of_file_name}.rb"]
+          matches = Dir["./*/*/#{end_of_file_name}"]
 
           if matches.size > 1
             raise RuntimeError, <<~ERROR_MESSAGE
-              Found too many possible file matches for #{class_name}
+              Found too many possible file matches for #{end_of_file_name}
 
               Matches found:
               #{matches.join('\n')}
             ERROR_MESSAGE
           end
 
-          return matches.first.gsub("#{end_of_file_name}.rb", ""), matches.first
+          return matches.first
         end
 
-        def guess_destination_file_path(prefix, class_name)
-          end_of_file_name = Internals::RailsConventions.class_to_pathname(class_name)
-          guess = "#{prefix}#{end_of_file_name}.rb"
-          matches = Dir[guess]
+        def ensure_writable_file_path(path)
+          matches = Dir[path]
 
           if matches.size > 0
             raise ArgumentError, <<~ERROR_MESSAGE
-              Cannot write to #{matches[0]} for #{class_name}
+              Cannot write to #{matches[0]} for #{path}
 
               A file at #{matches[0]} already exists.
             ERROR_MESSAGE
           end
 
-          return guess
+          return true
         end
       end
     end
