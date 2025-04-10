@@ -6,7 +6,7 @@ module RailsScripts
     class RspecWriteSpecsCommand
       class << self
         # Looks for specs that should exist, then creates missing ones, then runs test suite
-        def run
+        def run(arguments_array)
           git_changed_files = []
           RailsScripts::System.stream <<~SH do |_stdout, stderr, _status, _thread|
             git diff --relative --name-only $(git merge-base #{RailsScripts.configuration.git_trunk_branch_name} HEAD)
@@ -32,7 +32,7 @@ module RailsScripts
           end
 
           RailsScripts::System.call <<~SH
-            bin/rspec -fd #{found_spec_files.join(' ')}
+            bin/rspec -fd #{arguments_array.join(' ')} #{found_spec_files.join(' ')}
           SH
         end
       end
