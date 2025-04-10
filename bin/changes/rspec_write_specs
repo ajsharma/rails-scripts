@@ -3,4 +3,4 @@
 
 require_relative '../../boot'
 
-RailsScripts::Commands::RspecWriteSpecsCommand.run
+RailsScripts::Commands::RspecWriteSpecsCommand.run(ARGV)
