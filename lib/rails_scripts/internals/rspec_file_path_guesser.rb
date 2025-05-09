@@ -12,8 +12,12 @@ module RailsScripts
         end
 
         # Returns list of guesses, could return an empty list
+        # @return [Hash<String, String>] key is file path, value is spec path
         def guesses(application_file_paths)
-          application_file_paths.map { |application_file_path| guess(application_file_path) }.compact
+          application_file_paths.each_with_object({}) do |path, guesses|
+            guess = guess(path)
+            guesses[path] = guess if guess
+          end
         end
       end
 
