@@ -23,9 +23,11 @@ module RailsScripts
 
           # QUESTION: what if a file was deleted, and didn't have an equivalent test file?
 
-          found_spec_files = impacted_spec_files.map do |impacted_spec_file|
+          found_spec_files = impacted_spec_files.map do |file, impacted_spec_file|
+            full_klass_name = Internals::RailsConventions.pathname_to_class(file)
+
             Internals::FileMaker.find_or_create(impacted_spec_file, <<~TEMPLATE)
-              RSpec.describe 'TODO' do
+              RSpec.describe #{full_klass_name} do
                 pending "add some examples to (or delete) \#{__FILE__}"
               end
             TEMPLATE
