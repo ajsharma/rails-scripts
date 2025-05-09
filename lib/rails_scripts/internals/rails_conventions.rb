@@ -30,7 +30,6 @@ module RailsScripts
 
           # Camelize path parts
           segments = segments.map { |seg| seg.camelize }
-          # class_base = last.camelize
 
           full_class = segments.join('::')
           full_class
