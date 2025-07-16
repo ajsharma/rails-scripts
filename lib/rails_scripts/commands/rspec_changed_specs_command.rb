@@ -18,7 +18,7 @@ module RailsScripts
             end
           end
 
-          Internals::RspecFilePathGuesser.guesses(git_changed_files).each do |spec_file_guess|
+          Internals::RspecFilePathGuesser.guesses(git_changed_files).each do |file, spec_file_guess|
             # 2022-12-24 Some problem here with trailing character [0m
             System.echo spec_file_guess.to_s
           end
