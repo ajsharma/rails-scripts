@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Runs eslint and prettier against all changed files
+
 require_relative '../../boot'
 
 RailsScripts::Commands::YarnChangedFilesCommand.run

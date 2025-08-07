@@ -1,6 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Runs RSpec against changed files, makes a best effort to guess the 
+# appropriate spec.
+# 
+# Creates new spec files if they're missing.
+
 require_relative '../../boot'
 
 RailsScripts::Commands::RspecWriteSpecsCommand.run(ARGV)

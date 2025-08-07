@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# rubocop -A for all changed files
+
 require_relative '../../boot'
 
 RailsScripts::Commands::RubocopAutocorrectChangedFilesCommand.run

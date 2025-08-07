@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Runs all the known linters.
+# Autocorrects by default
+
 require_relative '../../boot'
 
 RailsScripts::System.echo <<~SH

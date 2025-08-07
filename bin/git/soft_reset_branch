@@ -4,7 +4,7 @@
 require_relative '../../boot'
 
 # Soft reset the branch, keep local changes.
-# Use an alternative to rebasing.
+# Use before rebasing to my the rebase simpler
 #
 # Alternatives:
 # git diff --name-only master

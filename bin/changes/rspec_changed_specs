@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Runs RSpec against changed files, makes a best effort to guess the 
+# appropriate spec.
+
 require_relative '../../boot'
 
 RailsScripts::Commands::RspecChangedSpecsCommand.run

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Tail the postgres logs if installed via Homebrew
+
 set -e
 
 tail -f /opt/homebrew/var/log/postgres.log
