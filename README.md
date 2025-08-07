@@ -2,12 +2,10 @@
 
 ## What is this?
 
-TODO
+A collection tools to make common Rails tasks easier. I use them every day to speed up my dev cycle.
 
 ## How to use
 
-TODO
+Simply clone the repo to your local machine and run commands from your Rails' app root folder.
 
-## How to install
-
-TODO
+(better details soon)
